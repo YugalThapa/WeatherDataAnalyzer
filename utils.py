@@ -108,7 +108,7 @@ def filter_data():
             monthly_data = df[(df['date'].dt.year == year) & (df['date'].dt.month == month)]
             
             if monthly_data.empty:
-                print(f"No data available for {year}-{int(month):02d}.")
+                print(f"No data available for {year}-{month:02d}.")
                 return
 
             # sample data
