@@ -1,8 +1,11 @@
 import pandas as pd
+import matplotlib.pyplot as plt
+import os
 
-#Define file to import
-csv_file = "data/weatherData2012.csv"
-
+#clear console 
+def clear_console():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    
 # Display summerize info. Helper function for Overview function
 def summerize_info(df):
     #Basic shape
@@ -28,157 +31,163 @@ def summerize_info(df):
     print(df.isnull().sum())
 
 #Overview of data
-def overview():
-    try:
-        df = pd.read_csv(csv_file)      #read csv file
-        if df.empty:                    #check if file empty or not
-            print("File is empty.")
-            return
-        
-        #convert date -> datetime & sort the data by date
-        df['date'] = pd.to_datetime(df['date'],errors='coerce')
-        df = df.sort_values(by='date')  
+def overview(df):
+    #convert date -> datetime & sort the data by date
+    df['date'] = pd.to_datetime(df['date'],errors='coerce')
+    df = df.sort_values(by='date')  
 
-        print("\n====== DATA OVERVIEW =======")
+    print("\n====== DATA OVERVIEW =======")
 
-        # Display info
-        summerize_info(df)
+    # Display info
+    summerize_info(df)
 
-    except FileNotFoundError:
-        print("File doesn't exist.")
 
 # Filter function
-def filter_data():
-    try:
-        df = pd.read_csv(csv_file)
-        if df.empty:
-            print("File is empty.")
+def filter_data(df): 
+
+    print("\n----- Filter Data -----")
+    print("1. Yearly Data")
+    print("2. Monthly Data")
+
+    choice = int(input("Enter your choice (1 or 2): "))
+
+    # yearly filter
+    if choice == 1:
+        year = input("Enter year (YYYY): ").strip()
+            
+        # validation
+        if not ( year.isdigit() and len(year) == 4):
+            print("Invalid year input.")
+            return
+            
+        year = int(year)
+        yearly_data_df = df[df['date'].dt.year == year]
+            
+        if yearly_data_df.empty:
+            print(f"No data available for {year} year.")
+            return
+            
+        # sample data
+        print(f"\n===== Data of Year {year} =====")
+        summerize_info(yearly_data_df)
+
+    # Monthly filter
+    elif choice == 2:
+        month_input = input("Enter month (YYYY-MM): ").strip()
+
+        if "-" not in month_input:
+            print("Invalid format. Use YYYY-MM.")
+            return
+            
+        year, month = [x.strip() for x in month_input.split("-")]
+            
+        # VALIDATION
+        if not (year.isdigit() and month.isdigit()):
+            print("Year and month must be numeric.")
+            return
+            
+        if len(year) != 4 or not (1 <= int(month) <= 12):
+            print("Invalid year or month.")
+            return
+            
+        year, month = int(year), int(month)
+        monthly_data_df = df[(df['date'].dt.year == year) & (df['date'].dt.month == month)]
+            
+        if monthly_data_df.empty:
+            print(f"No data available for {year}-{month:02d}.")
             return
 
-        #convert date -> datetime & sort the data by date
-        df['date'] = pd.to_datetime(df['date'],errors='coerce')
-        df = df.sort_values(by='date')  
+        # sample data
+        print(f"\n===== Data of Month {year}-{month:02d} =====")
+        summerize_info(monthly_data_df)
 
-        print("\n----- Filter Data -----")
-        print("1. Yearly Data")
-        print("2. Monthly Data")
+    else:
+        print("Invalid choice.")
+        return
 
-        choice = input("Enter your choice (1 or 2): ")
-
-        # yearly filter
-        if choice == "1":
-            year = input("Enter year (YYYY): ").strip()
-            
-            # validation
-            if not ( year.isdigit() and len(year) == 4):
-                print("Invalid year input.")
-                return
-            
-            year = int(year)
-            yearly_data = df[df['date'].dt.year == year]
-            
-            if yearly_data.empty:
-                print(f"No data available for {year} year.")
-                return
-            
-            # sample data
-            print(f"\n===== Data of Year {year} =====")
-            summerize_info(yearly_data)
-
-        # Monthly filter
-        elif choice == "2":
-            month_input = input("Enter month (YYYY-MM): ").strip()
-
-            if "-" not in month_input:
-                print("Invalid format. Use YYYY-MM.")
-                return
-            
-            year, month = [x.strip() for x in month_input.split("-")]
-            
-            # VALIDATION
-            if not (year.isdigit() and month.isdigit()):
-                print("Year and month must be numeric.")
-                return
-            
-            if len(year) != 4 or not (1 <= int(month) <= 12):
-                print("Invalid year or month.")
-                return
-            
-            year, month = int(year), int(month)
-            monthly_data = df[(df['date'].dt.year == year) & (df['date'].dt.month == month)]
-            
-            if monthly_data.empty:
-                print(f"No data available for {year}-{month:02d}.")
-                return
-
-            # sample data
-            print(f"\n===== Data of Month {year}-{month:02d} =====")
-            summerize_info(monthly_data)
-
-    except FileNotFoundError:
-        print("File doesn't exist.")
 
 # Analysis function
-def analysis_data():
+def analysis_data(df):
     """
     Perform statistical analysis on weather data.
     Handles missing values and prints descriptive statistics.
     """
 
-    try:
-        df = pd.read_csv(csv_file)
+    print("\n===== STATISTICAL ANALYSIS =====")
+    print(f"\nTotal observations: {len(df)}")
 
-        if df.empty:
-            print("File is empty.")
-            return
+    # ---------------- TEMPERATURE ----------------
+    print("\n--- Temperature ---")
+    print(f"Maximum Temperature: {df['max_temperature'].max():.2f} °C")
+    print(f"Minimum Temperature: {df['min_temperature'].min():.2f} °C")
+    print(f"Mean Temperature: {df['mean_temperature'].mean():.2f} °C")
+    print(f"Median Temperature: {df['mean_temperature'].median():.2f} °C")
+    print(f"Standard Deviation: {df['mean_temperature'].std():.2f} °C")
 
-        print("\n===== STATISTICAL ANALYSIS =====")
+    # ---------------- HUMIDITY ----------------
+    print("\n--- Humidity ---")
+    print(f"Maximum Humidity: {df['max_humidity'].max():.2f}")
+    print(f"Minimum Humidity: {df['min_humidity'].min():.2f}")
+    print(f"Mean Humidity: {df['mean_humidity'].mean():.2f}")
+    print(f"Median Humidity: {df['mean_humidity'].median():.2f}")
+    print(f"Standard Deviation: {df['mean_humidity'].std():.2f}")
 
-        # ---------------- TEMPERATURE ----------------
-        print("\n--- Temperature ---")
+    # ---------------- PRECIPITATION ----------------
+    print("\n--- Precipitation ---")
+    print(f"Maximum Precipitation: {df['precipitation'].max():.2f} mm")
+    print(f"Minimum Precipitation: {df['precipitation'].min():.2f} mm")
+    print(f"Mean Precipitation: {df['precipitation'].mean():.2f} mm")
+    print(f"Median Precipitation: {df['precipitation'].median():.2f} mm")
+    print(f"Standard Deviation: {df['precipitation'].std():.2f} mm")
 
-        # Handle missing temperature data
-        df['max_temperature'] = df['max_temperature'].fillna(df['max_temperature'].mean())
-        df['min_temperature'] = df['min_temperature'].fillna(df['min_temperature'].mean())
 
-        # Mean temperature per observation
-        df['mean_temperature'] = df[['max_temperature', 'min_temperature']].mean(axis=1)
+# Data visualization for better analysis
+def data_visualization(df, features=None):
+    """
+    Visualize numeric features in the DataFrame.
 
-        print(f"No. of observations: {len(df)}")
-        print(f"Maximum Temperature: {df['max_temperature'].max():.2f} °C")
-        print(f"Minimum Temperature: {df['min_temperature'].min():.2f} °C")
-        print(f"Mean Temperature: {df['mean_temperature'].mean():.2f} °C")
-        print(f"Median Temperature: {df['mean_temperature'].median():.2f} °C")
-        print(f"Standard Deviation: {df['mean_temperature'].std():.2f} °C")
+    Parameters:
+        df (pd.DataFrame): Cleaned dataset
+        features (list): List of column names to visualize; 
+                         if None, all numeric columns are visualized
+    """
 
-        # ---------------- HUMIDITY ----------------
-        print("\n--- Humidity ---")
+    # Determine columns to plot
+    if features is None:
+        features = df.select_dtypes(include='number').columns.tolist()
 
-        df['max_humidity'] = df['max_humidity'].fillna(df['max_humidity'].mean())
-        df['min_humidity'] = df['min_humidity'].fillna(df['min_humidity'].mean())
+    # Loop through each feature
+    for col in features:
+        if col not in df.columns:
+            print(f"Warning: Column '{col}' not found, skipping.")
+            continue
 
-        df['mean_humidity'] = df[['max_humidity', 'min_humidity']].mean(axis=1)
+        # Skip empty columns
+        if df[col].dropna().empty:
+            print(f"Column '{col}' has no data, skipping.")
+            continue
 
-        print(f"No. of observations: {len(df)}")
-        print(f"Maximum Humidity: {df['max_humidity'].max():.2f}")
-        print(f"Minimum Humidity: {df['min_humidity'].min():.2f}")
-        print(f"Mean Humidity: {df['mean_humidity'].mean():.2f}")
-        print(f"Median Humidity: {df['mean_humidity'].median():.2f}")
-        print(f"Standard Deviation: {df['mean_humidity'].std():.2f}")
+        # Line plot (trend)
+        plt.figure(figsize=(6, 4))
+        plt.plot(df[col], marker='o', linestyle='-', color='blue')
+        plt.title(f"{col} Trend")
+        plt.xlabel("Observation Index")
+        plt.ylabel(col)
+        plt.grid(True)
+        plt.show()
 
-        # ---------------- PRECIPITATION ----------------
-        print("\n--- Precipitation ---")
+        # Histogram (distribution)
+        plt.figure(figsize=(6, 4))
+        plt.hist(df[col].dropna(), bins=20, color='orange', edgecolor='black')
+        plt.title(f"{col} Distribution")
+        plt.xlabel(col)
+        plt.ylabel("Frequency")
+        plt.grid(True)
+        plt.show()
 
-        df['precipitation'] = df['precipitation'].fillna(df['precipitation'].mean())
-
-        print(f"No. of observations: {len(df)}")
-        print(f"Maximum Precipitation: {df['precipitation'].max():.2f} mm")
-        print(f"Minimum Precipitation: {df['precipitation'].min():.2f} mm")
-        print(f"Mean Precipitation: {df['precipitation'].mean():.2f} mm")
-        print(f"Median Precipitation: {df['precipitation'].median():.2f} mm")
-        print(f"Standard Deviation: {df['precipitation'].std():.2f} mm")
-
-    except FileNotFoundError:
-        print("File does not exist.")
-    except KeyError as e:
-        print(f"Missing required column: {e}")
+        # Boxplot (outliers)
+        plt.figure(figsize=(4, 4))
+        plt.boxplot(df[col].dropna())
+        plt.title(f"{col} Boxplot")
+        plt.ylabel(col)
+        plt.show()
