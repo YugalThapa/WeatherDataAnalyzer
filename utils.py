@@ -169,7 +169,7 @@ def data_visualization(df, features=None):
 
         # Line plot (trend)
         plt.figure(figsize=(6, 4))
-        plt.plot(df[col], marker='o', linestyle='-', color='blue')
+        plt.plot(df[col], linestyle='-', color='blue')
         plt.title(f"{col} Trend")
         plt.xlabel("Observation Index")
         plt.ylabel(col)
