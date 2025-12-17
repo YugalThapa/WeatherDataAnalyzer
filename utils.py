@@ -3,7 +3,7 @@ import pandas as pd
 #Define file to import
 csv_file = "data/weatherData2012.csv"
 
-# Display summerize info
+# Display summerize info. Helper function for Overview function
 def summerize_info(df):
     #Basic shape
     print(f"Total rows: {df.shape[0]}")
@@ -118,4 +118,67 @@ def filter_data():
     except FileNotFoundError:
         print("File doesn't exist.")
 
-filter_data()
+# Analysis function
+def analysis_data():
+    """
+    Perform statistical analysis on weather data.
+    Handles missing values and prints descriptive statistics.
+    """
+
+    try:
+        df = pd.read_csv(csv_file)
+
+        if df.empty:
+            print("File is empty.")
+            return
+
+        print("\n===== STATISTICAL ANALYSIS =====")
+
+        # ---------------- TEMPERATURE ----------------
+        print("\n--- Temperature ---")
+
+        # Handle missing temperature data
+        df['max_temperature'] = df['max_temperature'].fillna(df['max_temperature'].mean())
+        df['min_temperature'] = df['min_temperature'].fillna(df['min_temperature'].mean())
+
+        # Mean temperature per observation
+        df['mean_temperature'] = df[['max_temperature', 'min_temperature']].mean(axis=1)
+
+        print(f"No. of observations: {len(df)}")
+        print(f"Maximum Temperature: {df['max_temperature'].max():.2f} °C")
+        print(f"Minimum Temperature: {df['min_temperature'].min():.2f} °C")
+        print(f"Mean Temperature: {df['mean_temperature'].mean():.2f} °C")
+        print(f"Median Temperature: {df['mean_temperature'].median():.2f} °C")
+        print(f"Standard Deviation: {df['mean_temperature'].std():.2f} °C")
+
+        # ---------------- HUMIDITY ----------------
+        print("\n--- Humidity ---")
+
+        df['max_humidity'] = df['max_humidity'].fillna(df['max_humidity'].mean())
+        df['min_humidity'] = df['min_humidity'].fillna(df['min_humidity'].mean())
+
+        df['mean_humidity'] = df[['max_humidity', 'min_humidity']].mean(axis=1)
+
+        print(f"No. of observations: {len(df)}")
+        print(f"Maximum Humidity: {df['max_humidity'].max():.2f}")
+        print(f"Minimum Humidity: {df['min_humidity'].min():.2f}")
+        print(f"Mean Humidity: {df['mean_humidity'].mean():.2f}")
+        print(f"Median Humidity: {df['mean_humidity'].median():.2f}")
+        print(f"Standard Deviation: {df['mean_humidity'].std():.2f}")
+
+        # ---------------- PRECIPITATION ----------------
+        print("\n--- Precipitation ---")
+
+        df['precipitation'] = df['precipitation'].fillna(df['precipitation'].mean())
+
+        print(f"No. of observations: {len(df)}")
+        print(f"Maximum Precipitation: {df['precipitation'].max():.2f} mm")
+        print(f"Minimum Precipitation: {df['precipitation'].min():.2f} mm")
+        print(f"Mean Precipitation: {df['precipitation'].mean():.2f} mm")
+        print(f"Median Precipitation: {df['precipitation'].median():.2f} mm")
+        print(f"Standard Deviation: {df['precipitation'].std():.2f} mm")
+
+    except FileNotFoundError:
+        print("File does not exist.")
+    except KeyError as e:
+        print(f"Missing required column: {e}")
