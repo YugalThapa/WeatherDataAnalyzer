@@ -7,13 +7,13 @@ def clear_console():
     os.system('cls' if os.name == 'nt' else 'clear')
     
 # Display summerize info. Helper function for Overview function
-def summerize_info(df):
+def summarize_info(df):
     #Basic shape
     print(f"Total rows: {df.shape[0]}")
     print(f"Total column: {df.shape[1]}")
 
     #column name and type
-    print("\n----- Cloumn Info -----")
+    print("\n----- Column Info -----")
     print(df.dtypes)
 
     #sample data
@@ -30,16 +30,13 @@ def summerize_info(df):
     print("\n----- Missing values -----")
     print(df.isnull().sum())
 
-#Overview of data
-def overview(df):
-    #convert date -> datetime & sort the data by date
-    df['date'] = pd.to_datetime(df['date'],errors='coerce')
-    df = df.sort_values(by='date')  
+# Overview of data
+def overview(df): 
 
     print("\n====== DATA OVERVIEW =======")
 
     # Display info
-    summerize_info(df)
+    summarize_info(df)
 
 
 # Filter function
@@ -69,7 +66,7 @@ def filter_data(df):
             
         # sample data
         print(f"\n===== Data of Year {year} =====")
-        summerize_info(yearly_data_df)
+        return yearly_data_df
 
     # Monthly filter
     elif choice == 2:
@@ -99,7 +96,7 @@ def filter_data(df):
 
         # sample data
         print(f"\n===== Data of Month {year}-{month:02d} =====")
-        summerize_info(monthly_data_df)
+        return monthly_data_df
 
     else:
         print("Invalid choice.")
@@ -115,6 +112,7 @@ def analysis_data(df):
 
     print("\n===== STATISTICAL ANALYSIS =====")
     print(f"\nTotal observations: {len(df)}")
+    print(f"Period: {df['date'].min()} to {df['date'].max()}")
 
     # ---------------- TEMPERATURE ----------------
     print("\n--- Temperature ---")
@@ -169,7 +167,7 @@ def data_visualization(df, features=None):
 
         # Line plot (trend)
         plt.figure(figsize=(6, 4))
-        plt.plot(df[col], linestyle='-', color='blue')
+        plt.plot(df['date'],df[col], linestyle='-', color='blue')
         plt.title(f"{col} Trend")
         plt.xlabel("Observation Index")
         plt.ylabel(col)

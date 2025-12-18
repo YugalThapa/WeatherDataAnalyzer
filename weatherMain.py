@@ -1,5 +1,5 @@
 import pandas as pd
-from utils import overview, filter_data, analysis_data, data_visualization, clear_console
+from utils import summarize_info,overview, filter_data, analysis_data, data_visualization, clear_console
 
 # This is the main function
 def main():
@@ -20,15 +20,15 @@ def main():
         df = df.sort_values(by='date') 
         
         # Handle missing temperature data
-        df['max_temperature'] = df['max_temperature'].fillna(df['max_temperature'].mean())
-        df['min_temperature'] = df['min_temperature'].fillna(df['min_temperature'].mean())
+        df['max_temperature'] = df['max_temperature'].interpolate()
+        df['min_temperature'] = df['min_temperature'].interpolate()
 
         # Handle missing humidity data
-        df['max_humidity'] = df['max_humidity'].fillna(df['max_humidity'].mean())
-        df['min_humidity'] = df['min_humidity'].fillna(df['min_humidity'].mean())
+        df['max_humidity'] = df['max_humidity'].interpolate()
+        df['min_humidity'] = df['min_humidity'].interpolate()
 
         # Handle missing precipitation data
-        df['precipitation'] = df['precipitation'].fillna(df['precipitation'].mean())
+        df['precipitation'] = df['precipitation'].interpolate()
 
         # Adding new columns in df for observation( mean_temperature, mean_humidity)
         df['mean_temperature'] = df[['max_temperature', 'min_temperature']].mean(axis=1)
@@ -61,7 +61,10 @@ def main():
             elif choice == 2:
                 clear_console()
                 # run filter_data function
-                filter_data(df)
+                filtered_df = filter_data(df)
+
+                if filtered_df is not None:
+                    summarize_info(filtered_df)
 
             elif choice == 3:
                 clear_console()

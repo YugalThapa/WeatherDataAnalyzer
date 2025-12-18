@@ -4,6 +4,7 @@ df = pd.read_csv("data/Madrid Daily Weather 1997-2015.csv")
 
 #clip only required column
 clipped_data = df[["date","max_temperature","min_temperature","max_humidity","min_humidity","precipitation"]]
+clipped_data = clipped_data.copy()
 
 #converting string -> datetime object
 clipped_data["date"] = pd.to_datetime(clipped_data["date"], format="%d-%m-%Y")
