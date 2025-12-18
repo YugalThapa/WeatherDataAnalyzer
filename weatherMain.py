@@ -44,7 +44,14 @@ def main():
             print("5. Exit")
 
             # Take user choice
-            choice = int(input("Enter your choice (1-5): "))
+            choice = input("Enter your choice (1-5): ")
+
+            # Check if choice is digit or not
+            if not choice.isdigit():
+                print("Please enter number (1-5)")
+                continue
+
+            choice = int(choice)
 
             if choice == 1:
                 clear_console()
